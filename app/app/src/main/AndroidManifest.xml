@@ -6,6 +6,7 @@
     <application
         android:theme="@style/AppTheme"
         android:label="أنيس الوصال"
+        android:icon="@drawable/Photoroom_20260922_213252"
         android:usesCleartextTraffic="false">
 
         <activity

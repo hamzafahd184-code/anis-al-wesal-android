@@ -34,19 +34,37 @@ jobs:
           gradle-version: '8.9'
 
       - name: Prepare App Icon
+        shell: bash
         run: |
-          mkdir -p app/src/main/res/drawable
+          mkdir -p app/src/main/res/drawable 2>/dev/null || true
 
-          ICON=$(find app/src/main/res -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) | head -n 1)
+          ICON=$(find app/src/main/res -maxdepth 1 -type f \
+            \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) \
+            | head -n 1)
 
           if [ -z "$ICON" ]; then
             echo "ERROR: No image found in app/src/main/res"
             exit 1
           fi
 
+          echo "Using icon: $ICON"
           cp "$ICON" app/src/main/res/drawable/app_icon.png
 
-          sed -i 's|<application|<application android:icon="@drawable/app_icon"|' app/src/main/AndroidManifest.xml
+          python3 - <<'PY'
+          from pathlib import Path
+
+          manifest = Path("app/src/main/AndroidManifest.xml")
+          text = manifest.read_text(encoding="utf-8")
+
+          if 'android:icon="@drawable/app_icon"' not in text:
+              text = text.replace(
+                  "<application",
+                  '<application android:icon="@drawable/app_icon"',
+                  1
+              )
+
+          manifest.write_text(text, encoding="utf-8")
+          PY
 
       - name: Build APK
         run: gradle assembleDebug

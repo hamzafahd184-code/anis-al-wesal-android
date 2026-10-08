@@ -36,14 +36,15 @@ jobs:
       - name: Prepare App Icon
         shell: bash
         run: |
-          mkdir -p app/src/main/res/drawable 2>/dev/null || true
+          rm -f app/src/main/res/drawable
+          mkdir -p app/src/main/res/drawable
 
           ICON=$(find app/src/main/res -maxdepth 1 -type f \
             \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) \
             | head -n 1)
 
           if [ -z "$ICON" ]; then
-            echo "ERROR: No image found in app/src/main/res"
+            echo "ERROR: No image found"
             exit 1
           fi
 

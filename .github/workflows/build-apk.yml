@@ -33,6 +33,21 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Prepare App Icon
+        run: |
+          mkdir -p app/src/main/res/drawable
+
+          ICON=$(find app/src/main/res -maxdepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" \) | head -n 1)
+
+          if [ -z "$ICON" ]; then
+            echo "ERROR: No image found in app/src/main/res"
+            exit 1
+          fi
+
+          cp "$ICON" app/src/main/res/drawable/app_icon.png
+
+          sed -i 's|<application|<application android:icon="@drawable/app_icon"|' app/src/main/AndroidManifest.xml
+
       - name: Build APK
         run: gradle assembleDebug
 
